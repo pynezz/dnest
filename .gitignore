@@ -1,0 +1,31 @@
+# Environment variables
+.env
+.env.example
+.env.local
+.env.test
+.env.production
+
+# Go misc files
+*.exe
+*.test
+*.prof
+*.pprof
+*.out
+*.cprof
+*.trace
+*.traces
+*.cover
+*.godir
+*.log
+*.vscode
+*.vscode-*
+*.vsix
+*.code-workspace
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so

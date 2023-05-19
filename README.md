@@ -1,5 +1,5 @@
 # dnest - a local honeypot and network monitor [WIP]
-<img src="pic/logo_fill.png" style="float: left; z-axis: 9999;" height="128">
+<img src="pic/logo_fill.png" alt="logo" height="256" />
 
 ## Description
 dnest is a *work-in-progress* local network security monitor and honeypot system built with Go. It's designed to protect data assets by monitoring network traffic and file access on the machine.

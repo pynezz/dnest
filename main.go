@@ -33,6 +33,48 @@ var (
 
 var PBUF = 128
 
+func displayMenu() {
+	fmt.Println("1. Add a file to the honeypot")
+	fmt.Println("2. Remove a file from the honeypot")
+	fmt.Println("3. List all files in the honeypot")
+	fmt.Println("4. Exit")
+
+	fmt.Print("Enter your choice: ")
+
+	if choice, err := bufio.NewReader(os.Stdin).ReadString('\n'); err == nil {
+		switch strings.TrimSpace(choice) {
+		case "1":
+			fmt.Println("Add a file to the honeypot")
+			fmt.Print("Enter the file name: ")
+			if fileName, err := bufio.NewReader(os.Stdin).ReadString('\n'); err == nil {
+				fmt.Println("Adding file: ", strings.TrimSpace(fileName))
+				NewHoneyCell(strings.TrimSpace(fileName))
+			} else {
+				fmt.Println(err)
+			}
+		case "2":
+			fmt.Println("Remove a file from the honeypot")
+			fmt.Print("Enter the file name: ")
+			if fileName, err := bufio.NewReader(os.Stdin).ReadString('\n'); err == nil {
+				fmt.Println("Removing file: ", strings.TrimSpace(fileName))
+				// removeCell(strings.TrimSpace(fileName)) // TODO
+			} else {
+				fmt.Println(err)
+			}
+		case "3":
+			fmt.Println("List all files in the honeypot")
+			// listCells() // TODO
+		case "4":
+			fmt.Println("Exit")
+			os.Exit(0)
+		default:
+			fmt.Println("Invalid choice")
+		}
+	} else {
+		fmt.Println(err)
+	}
+}
+
 func findOrg(ip string) (org string, _ip string) {
 	conn, err := net.Dial("tcp", "whois.arin.net:43")
 	if err != nil {

@@ -19,6 +19,8 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/fsnotify/fsnotify"
+
+	"github.com/pynezz/dnest/pkg/dnest"
 )
 
 var (
@@ -32,6 +34,12 @@ var (
 )
 
 var PBUF = 128
+
+var (
+	// The honeypot hive
+	hive *dnest.Hive = nil
+	cell *dnest.Cell = nil
+)
 
 func displayMenu() {
 	fmt.Println("1. Add a file to the honeypot")
@@ -48,7 +56,9 @@ func displayMenu() {
 			fmt.Print("Enter the file name: ")
 			if fileName, err := bufio.NewReader(os.Stdin).ReadString('\n'); err == nil {
 				fmt.Println("Adding file: ", strings.TrimSpace(fileName))
-				NewHoneyCell(strings.TrimSpace(fileName))
+
+				// TODO: Add file to honeypot
+				cell = cell.NewHoneyCell(strings.TrimSpace(fileName), cell, []byte("wallet.dat"))
 			} else {
 				fmt.Println(err)
 			}

@@ -17,6 +17,7 @@ import (
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 	"github.com/joho/godotenv"
+	"github.com/rivo/tview"
 
 	"github.com/fsnotify/fsnotify"
 
@@ -48,6 +49,12 @@ func displayMenu() {
 	fmt.Println("4. Exit")
 
 	fmt.Print("Enter your choice: ")
+
+	textArea := tview.NewTextView()
+	textArea.SetBorder(true).SetTitle("Hello, world!")
+	if err := tview.NewApplication().SetRoot(textArea, true).Run(); err != nil {
+		panic(err)
+	}
 
 	if choice, err := bufio.NewReader(os.Stdin).ReadString('\n'); err == nil {
 		switch strings.TrimSpace(choice) {
@@ -252,6 +259,7 @@ func wLog(l string) {
 }
 
 func main() {
+	displayMenu()
 	// Setting up the basics
 	var ips []string
 	ips = append(ips, "192.168.1.1")

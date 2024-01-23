@@ -221,7 +221,10 @@ func filewatcher() {
 		}
 	}()
 
-	var path string = "/home/kevin/Dev/Go/dnest/check.txt"
+	// var path string = "/home/kevin/Dev/Go/dnest/check.txt" // Linux
+	wd, _ := os.Getwd()
+	var path string = wd + "\\check.txt"
+
 	println("watching: ", path)
 	err = watcher.Add(path)
 	if err != nil {
@@ -259,7 +262,7 @@ func wLog(l string) {
 }
 
 func main() {
-	displayMenu()
+	// displayMenu()
 	// Setting up the basics
 	var ips []string
 	ips = append(ips, "192.168.1.1")

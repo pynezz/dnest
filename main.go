@@ -262,7 +262,23 @@ func wLog(l string) {
 }
 
 func main() {
+
+	args := os.Args
+	var ip string = ""
+
+	for i, arg := range args {
+		if arg == "-ip" && i < len(args)-1 {
+			ip = args[i+1]
+		}
+	}
+
+	if ip != "" {
+		dnest.IPAddressExtract(ip)
+	}
+
+	return
 	// displayMenu()
+
 	// Setting up the basics
 	var ips []string
 	ips = append(ips, "192.168.1.1")

@@ -14,6 +14,17 @@ import (
 	"github.com/pynezz/dnest/pkg/dnest"
 )
 
+type Args struct {
+	ConfigFile string
+}
+
+// Global args variable
+var (
+	variables = &Args{
+		ConfigFile: "",
+	}
+)
+
 var (
 	// The honeypot hive
 	hive *dnest.Hive = nil
@@ -126,11 +137,14 @@ func filewatcher() {
 	<-done
 }
 
-func main() {
-
+func parseArgs() map[string]string {
 	args := os.Args
+
+	parsed := make(map[string]string)
+
 	var ip string = ""
 	var VT_API_KEY string = ""
+	var configFile string = ""
 
 	for i, arg := range args {
 		if arg == "-ip" && i < len(args)-1 {
@@ -139,21 +153,112 @@ func main() {
 		if arg == "-vtkey" && i < len(args)-1 {
 			VT_API_KEY = args[i+1]
 		}
+		if arg == "-config" && i < len(args)-1 {
+			configFile = args[i+1]
+		}
 	}
 
 	if ip != "" {
 		ip = dnest.IPAddressExtract(ip)
 	} else {
-		fmt.Println("No IP address provided")
-		os.Exit(1)
+		fmt.Println(dnest.Colorize("[!]", dnest.Red) + " No IP address provided")
+		// os.Exit(1)
 	}
+
+	parsed["ip"] = ip
+	parsed["vtkey"] = VT_API_KEY
+	parsed["config"] = configFile
+
+	return parsed
+}
+
+func main() {
+
+	args := parseArgs()
+
+	ip := args["ip"]
+	VT_API_KEY := args["vtkey"]
+	variables.ConfigFile = args["config"]
+
+	readConf()
 
 	dnest.CheckIPVirusTotal(ip, VT_API_KEY)
 
-	return
+	// return
 	// displayMenu()
 
 	// Run filewatcher in the background
-	go filewatcher()
+	// go filewatcher()
 
+}
+
+func readConf() {
+	fmt.Printf("%s Reading config file (%s)\n", dnest.Colorize("[+]", dnest.Green), variables.ConfigFile)
+	// Read config file
+	// If no config file, create one
+	// If config file, read it
+	// If config file, parse it
+
+	// Read
+	configFile := variables.ConfigFile
+
+	// Check if the config file exists
+	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+		defaultConf() // Create default config if not exists
+	}
+
+	// Now open the file for reading
+	f, err := os.Open(configFile)
+	if err != nil {
+		log.Fatalf("Error opening config file: %s", err)
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Println(line)
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("Error reading config file: %s\n", err)
+		os.Exit(1)
+	}
+
+}
+
+func defaultConf() {
+	conf := `	# This is the default config file for dnest
+	# You can change the config file with the -config flag
+	# The config file is used to store variables that are used in dnest
+
+	# Use VirusTotal
+	USE_VT = true
+
+	# Use ThreatFox
+	USE_TF = true
+
+	# Use Abuse[dot]ch
+	USE_ABUSECH = true
+
+	## Filesystem stuff
+	# Directory for log files
+	LOG_DIR = "/var/log/dnest"
+
+	# Directory for honeypot files
+	HONEYPOT_DIR = "/var/lib/dnest"
+
+	# Directory for unpacked files
+	UNPACKED_DIR = "/var/lib/dnest/unpacked"
+
+	# Directory for nginx logs
+	NGINX_LOGS = "/var/log/nginx/access.log"
+	`
+
+	err := os.WriteFile("dnest.conf", []byte(conf), 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("%s Created default config file", dnest.Colorize("[+]", dnest.Green))
 }

@@ -14,10 +14,8 @@ func IPAddressExtract(line string) string {
 	re := regexp.MustCompile(`(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}`)
 
 	match := re.FindString(line)
-
 	fmt.Println(match)
 
-	println("\nDONE!\nExiting...")
 	if match == "" {
 		return "[Warning] No IP found"
 	}

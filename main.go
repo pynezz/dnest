@@ -145,8 +145,16 @@ type VirusTotalResponse struct {
 	} `json:"data"`
 }
 
-func checkIPVirusTotal(ip string) {
+func checkIPVirusTotal(ip string, VT_API_KEY string) {
 	apiKey := os.Getenv("VT_KEY")
+	if apiKey == "" {
+		apiKey = VT_API_KEY
+	}
+	if apiKey == "" {
+		log.Fatal("VT_API_KEY environment variable not set, and no VT_API_KEY set. Use -vtkey to set it")
+		os.Exit(1)
+	}
+
 	url := fmt.Sprintf("https://www.virustotal.com/api/v3/ip_addresses/%s", ip)
 
 	req, _ := http.NewRequest("GET", url, nil)
@@ -172,7 +180,10 @@ func checkIPVirusTotal(ip string) {
 		fmt.Printf("Suspicious: %d\n", suspicious)
 
 		// Log the malicious IP
-		logStr := fmt.Sprintf("Malicious: %d for %s\n", malicious, ip)
+		logStr := fmt.Sprintf("- %s\n", ip)
+		logStr += fmt.Sprintf("Malicious: %d for %s\n", malicious, ip)
+		logStr += fmt.Sprintf("Suspicious: %d for %s\n", suspicious, ip)
+		logStr += "--------------------\n"
 		wLog(logStr)
 	}
 }
@@ -265,16 +276,25 @@ func main() {
 
 	args := os.Args
 	var ip string = ""
+	var VT_API_KEY string = ""
 
 	for i, arg := range args {
 		if arg == "-ip" && i < len(args)-1 {
 			ip = args[i+1]
 		}
+		if arg == "-vtkey" && i < len(args)-1 {
+			VT_API_KEY = args[i+1]
+		}
 	}
 
 	if ip != "" {
-		dnest.IPAddressExtract(ip)
+		ip = dnest.IPAddressExtract(ip)
+	} else {
+		fmt.Println("No IP address provided")
+		os.Exit(1)
 	}
+
+	checkIPVirusTotal(ip, VT_API_KEY)
 
 	return
 	// displayMenu()
@@ -332,7 +352,7 @@ func main() {
 		if tempLen != len(ips) {
 			fmt.Println("New IP found: ", ip)
 			fmt.Println("Running VirusTotal check...")
-			checkIPVirusTotal(ip)
+			checkIPVirusTotal(ip, VT_API_KEY)
 		}
 	}
 }

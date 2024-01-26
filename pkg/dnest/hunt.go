@@ -10,8 +10,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	vt "github.com/VirusTotal/vt-go"
 )
 
 type BinaryAnalysis struct {
@@ -58,12 +56,12 @@ type HuntingGround struct {
 
 func Hunt() {
 
-	// Initialize the hunting ground
-	hg := HuntingGround{
-		TempDir: WriteTempDir(),
-		LogFile: hg.TempDir + "/log.txt",
-		KVStore: make(map[string]string),
-	}
+	// // Initialize the hunting ground
+	// hg := &HuntingGround{
+	// 	TempDir: WriteTempDir(),
+	// 	LogFile: TempDir + "/log.txt",
+	// 	KVStore: make(map[string]string),
+	// }
 
 	fmt.Println("Hunting for threats...")
 
@@ -73,14 +71,30 @@ func Hunt() {
 	}
 
 	// Create a new VirusTotal client
-	client := vt.NewClient(apiKey)
+	// client := vt.NewClient(apiKey)
 }
 
 func WriteTempDir() string { // Returns the path to the temp dir
 	// Create a temp dir
-
+	var tmpdir string
+	return tmpdir
 }
 
-func DelTempDir() {
+func DelTempDir(path string) {
 	// Delete the temp dir
+
+	// Prompt the user to delete the temp dir
+	// If the user says yes, delete the temp dir
+	// If the user says no, exit
+	var input string
+	fmt.Println("Delete temp dir " + path + "? (y/n)")
+	fmt.Scanln(&input)
+	if input == "y" {
+		// Delete the temp dir
+		fmt.Println("Deleting temp dir...")
+	} else {
+		// Exit
+		fmt.Println("Exiting...")
+	}
+
 }

@@ -140,7 +140,7 @@ func CheckIPVirusTotal(ip string, VT_API_KEY string) {
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	var data VirusTotalResponse
-	json.Unmarshal(body, &data)
+	json.Unmarshal(body, &data) // Unmarshal the JSON into the data struct, cool stuff
 
 	malicious := data.Data.Attributes.LastAnalysisStats.Malicious
 	suspicious := data.Data.Attributes.LastAnalysisStats.Suspicious

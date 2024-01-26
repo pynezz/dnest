@@ -7,8 +7,11 @@ package dnest
 // Important to note, the VT API is limited to 4 requests per minute, and 500 requests per day
 // Which means we'll need to keep track of how many requests we've made, and wait if we've hit the limit
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 )
 
@@ -97,4 +100,73 @@ func DelTempDir(path string) {
 		fmt.Println("Exiting...")
 	}
 
+}
+
+type VirusTotalResponse struct {
+	Data struct {
+		Attributes struct {
+			LastAnalysisStats struct {
+				Malicious  int `json:"malicious"`
+				Suspicious int `json:"suspicious"`
+				Harmless   int `json:"harmless"`
+				Undetected int `json:"undetected"`
+			} `json:"last_analysis_stats"`
+		} `json:"attributes"`
+	} `json:"data"`
+}
+
+func CheckIPVirusTotal(ip string, VT_API_KEY string) {
+	apiKey := os.Getenv("VT_KEY")
+	if apiKey == "" {
+		apiKey = VT_API_KEY
+	}
+	if apiKey == "" {
+		log.Fatal("VT_API_KEY environment variable not set, and no VT_API_KEY set. Use -vtkey to set it")
+		os.Exit(1)
+	}
+
+	url := fmt.Sprintf("https://www.virustotal.com/api/v3/ip_addresses/%s", ip)
+
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("x-apikey", apiKey)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	var data VirusTotalResponse
+	json.Unmarshal(body, &data)
+
+	malicious := data.Data.Attributes.LastAnalysisStats.Malicious
+	suspicious := data.Data.Attributes.LastAnalysisStats.Suspicious
+
+	if malicious > 0 || suspicious > 0 {
+		fmt.Printf("Malicious: %d\n", malicious)
+		fmt.Printf("Suspicious: %d\n", suspicious)
+
+		// Log the malicious IP
+		logStr := fmt.Sprintf("- %s\n", ip)
+		logStr += fmt.Sprintf("Malicious: %d for %s\n", malicious, ip)
+		logStr += fmt.Sprintf("Suspicious: %d for %s\n", suspicious, ip)
+		logStr += "--------------------\n"
+		wLog(logStr)
+	}
+}
+
+// Log something to a logfile
+func wLog(l string) {
+	f, err := os.OpenFile("log.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	if _, err := f.WriteString(l + "\n"); err != nil {
+		log.Fatal(err)
+	}
 }

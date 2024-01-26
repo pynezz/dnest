@@ -148,7 +148,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	CheckIPVirusTotal(ip, VT_API_KEY)
+	dnest.CheckIPVirusTotal(ip, VT_API_KEY)
 
 	return
 	// displayMenu()
